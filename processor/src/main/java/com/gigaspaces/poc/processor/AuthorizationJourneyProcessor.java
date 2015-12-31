@@ -51,8 +51,8 @@ public class AuthorizationJourneyProcessor {
             journey.setJourneyLifecycle(JourneyLifecycle.AUTHORIZED);
             logger.info("journey/lifecycle - AUTHORIZED - " + journey);
         } catch (Exception e) {
-            logger.info("Failed to authroize: " + e);
-            journey.setJourneyLifecycle(null); //TODO handle authroization failures
+            logger.info("Failed to authorize: " + e);
+            journey.setJourneyLifecycle(null); //TODO handle authorization failures
         }
         return journey;
     }
