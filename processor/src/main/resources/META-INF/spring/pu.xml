@@ -72,8 +72,8 @@
         The space is configured to connect to a mirror, and uses the configured external data source
         to perform the initial load operation from the database when the Space starts up.
     -->
-    <os-core:space id="space" url="/./space" schema="persistent"
-                   mirror="true" space-data-source="hibernateSpaceDataSource">
+    <os-core:embedded-space id="space" space-name="space" schema="persistent"
+                   mirrored="true" space-data-source="hibernateSpaceDataSource">
         <os-core:properties>
             <props>
                 <!-- Use ALL IN CACHE -->
@@ -83,7 +83,7 @@
                 <prop key="cluster-config.cache-loader.central-data-source">true</prop>
             </props>
         </os-core:properties>
-    </os-core:space>
+    </os-core:embedded-space>
 
     <!--
         Defines a distributed transaction manager.
@@ -105,6 +105,8 @@
     <bean id="instructionReleasedEventProcessor" class="com.gigaspaces.poc.processor.InstructionReleasedEventProcessor"/>
     <bean id="moneyTransferInstructionProcessor" class="com.gigaspaces.poc.processor.MoneyTransferInstructionProcessor"/>
     <bean id="moneyTransferJourneyProcessor" class="com.gigaspaces.poc.processor.MoneyTransferJourneyProcessor"/>
+
+    <bean id="authorizationServiceBean" class="com.gigaspaces.poc.common.AuthorizationServiceBean"/>
 
 
     <!-- Support the @RemotingService annotation on a service-->

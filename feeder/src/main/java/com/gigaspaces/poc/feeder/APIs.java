@@ -1,9 +1,7 @@
 package com.gigaspaces.poc.feeder;
 
-import com.gigaspaces.poc.common.InstructionEvent;
-import com.gigaspaces.poc.common.Journey;
-import com.gigaspaces.poc.common.JourneyLifecycle;
-import com.gigaspaces.poc.common.MoneyTransferJourney;
+import com.gigaspaces.async.AsyncFuture;
+import com.gigaspaces.poc.common.*;
 import com.j_spaces.core.client.SQLQuery;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.context.GigaSpaceContext;
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
@@ -31,15 +30,26 @@ public class APIs implements InitializingBean, DisposableBean {
     private GigaSpace gigaSpace;
 
     public void afterPropertiesSet() throws Exception {
-        while (true) {
-            createMoneyTransfer();
-            getMoneyTransfers();
-            Thread.sleep(10000);
+        createMoneyTransfer();
+        getMoneyTransfers();
+
+        Thread.sleep(10000);
+        updateAuthorizationService();
+        createMoneyTransfer();
+    }
+
+    private void updateAuthorizationService() {
+        logger.info("--- updateAuthorizationService");
+        AsyncFuture<Object> asyncFuture = gigaSpace.execute(new UpdateAuthorizationServiceTask(new AuthorizationServiceImpl2()));
+        try {
+            asyncFuture.get();
+        } catch (Exception e) {
+            logger.warning("failed to update service: " + e);
         }
     }
 
     private void createMoneyTransfer() {
-        logger.info("CreateMoneyTransfer:");
+        logger.info("--- CreateMoneyTransfer:");
         MoneyTransferJourney journey = new MoneyTransferJourney();
         journey.setId(UUID.randomUUID().toString());
         journey.setJourneyLifecycle(JourneyLifecycle.CREATED);
@@ -49,7 +59,7 @@ public class APIs implements InitializingBean, DisposableBean {
     }
 
     private void getMoneyTransfers() {
-        logger.info("GetMoneyTransfers:");
+        logger.info("--- GetMoneyTransfers:");
         MoneyTransferJourney[] moneyTransferJourneys = gigaSpace.readMultiple(new SQLQuery<MoneyTransferJourney>(MoneyTransferJourney.class, "journeyLifecycle=? or journeyLifecycle=?",
                 JourneyLifecycle.CREATED, JourneyLifecycle.AUTHORIZED));
         for (MoneyTransferJourney moneyTransferJourney : moneyTransferJourneys) {

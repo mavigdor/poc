@@ -1,5 +1,6 @@
 package com.gigaspaces.poc.processor;
 
+import com.gigaspaces.poc.common.AuthorizationServiceBean;
 import com.gigaspaces.poc.common.Debug;
 import com.gigaspaces.poc.common.Journey;
 import com.gigaspaces.poc.common.JourneyLifecycle;
@@ -9,6 +10,7 @@ import org.openspaces.events.EventTemplate;
 import org.openspaces.events.TransactionalEvent;
 import org.openspaces.events.adapter.SpaceDataEvent;
 import org.openspaces.events.polling.Polling;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.logging.Logger;
 
@@ -21,6 +23,9 @@ import java.util.logging.Logger;
 public class AuthorizationJourneyProcessor {
 
     private static Logger logger = Logger.getLogger(AuthorizationJourneyProcessor.class.getName());
+
+    @Autowired
+    private AuthorizationServiceBean authorizationServiceBean;
 
     @EventTemplate
     public SQLQuery<Journey> eventTemplate() {
@@ -41,14 +46,15 @@ public class AuthorizationJourneyProcessor {
         logger.info("entry/verifyAuthorization() - " + journey);
 
         logger.info("toBeAuthorized()");
-        authorize();
-        journey.setJourneyLifecycle(JourneyLifecycle.AUTHORIZED);
-        logger.info("journey/lifecycle - AUTHORIZED - " + journey);
+        try {
+            authorizationServiceBean.getAuthorizationService().authorize(journey);
+            journey.setJourneyLifecycle(JourneyLifecycle.AUTHORIZED);
+            logger.info("journey/lifecycle - AUTHORIZED - " + journey);
+        } catch (Exception e) {
+            logger.info("Failed to authroize: " + e);
+            journey.setJourneyLifecycle(null); //TODO handle authroization failures
+        }
         return journey;
-    }
-
-    private void authorize() {
-        //some authorization logic here
     }
 
 }

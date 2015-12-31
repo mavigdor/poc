@@ -4,7 +4,6 @@ import com.gigaspaces.poc.common.*;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.SpaceInterruptedException;
 import org.openspaces.core.context.GigaSpaceContext;
-import org.openspaces.remoting.ExecutorProxy;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class JourneyFeeder implements InitializingBean, DisposableBean {
 
-    Logger log= Logger.getLogger(this.getClass().getName());
+    private static Logger logger = Logger.getLogger(JourneyFeeder.class.getName());
     
     private ScheduledExecutorService executorService;
 
@@ -53,7 +52,7 @@ public class JourneyFeeder implements InitializingBean, DisposableBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        log.info("--- STARTING FEEDER WITH [" + defaultDelay + " ms] DELAY BETWEEN CYCLES");
+        logger.info("--- STARTING FEEDER WITH [" + defaultDelay + " ms] DELAY BETWEEN CYCLES");
         executorService = Executors.newScheduledThreadPool(1);
         journeyTask = new JourneyTask();
         sf = executorService.scheduleAtFixedRate(journeyTask, initialDelay, defaultDelay,
@@ -74,11 +73,11 @@ public class JourneyFeeder implements InitializingBean, DisposableBean {
                 journey.setId(UUID.randomUUID().toString());
                 journey.setJourneyLifecycle(JourneyLifecycle.CREATED);
                 gigaSpace.write(journey);
-                log.info("--- Create Journey: " + journey);
+                logger.info("--- Create Journey: " + journey);
             } catch (SpaceInterruptedException e) {
                 // ignore, we are being shutdown
             } catch (Exception e) {
-                log.warning("--- FEEDER EXCEPTION " + e);
+                logger.warning("--- FEEDER EXCEPTION " + e);
             }
         }
     }
