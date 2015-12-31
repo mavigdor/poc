@@ -41,8 +41,12 @@ public class JourneyFeeder implements InitializingBean, DisposableBean {
     @GigaSpaceContext
     private GigaSpace gigaSpace;
 
-    @ExecutorProxy
-    private JourneyService journeyService;
+    /*
+        Simulate use of Executor proxy
+        journeyService.createJourney(journey)
+     */
+    //@ExecutorProxy
+    //private JourneyService journeyService;
 
     public void setDefaultDelay(long defaultDelay) {
         this.defaultDelay = defaultDelay;
@@ -69,9 +73,8 @@ public class JourneyFeeder implements InitializingBean, DisposableBean {
                 MoneyTransferJourney journey = new MoneyTransferJourney();
                 journey.setId(UUID.randomUUID().toString());
                 journey.setJourneyLifecycle(JourneyLifecycle.CREATED);
-                log.info("---> FEEDER WRITE " + journey);
                 gigaSpace.write(journey);
-                log.info("<--- FEEDER WROTE " + journey);
+                log.info("--- Create Journey: " + journey);
             } catch (SpaceInterruptedException e) {
                 // ignore, we are being shutdown
             } catch (Exception e) {

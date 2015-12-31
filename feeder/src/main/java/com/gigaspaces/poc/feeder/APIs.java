@@ -54,7 +54,6 @@ public class APIs implements InitializingBean, DisposableBean {
                 JourneyLifecycle.CREATED, JourneyLifecycle.AUTHORIZED));
         for (MoneyTransferJourney moneyTransferJourney : moneyTransferJourneys) {
             logger.info("\t---> " + moneyTransferJourney);
-            //getMoneyTransferDetails(moneyTransferJourney);
         }
     }
 

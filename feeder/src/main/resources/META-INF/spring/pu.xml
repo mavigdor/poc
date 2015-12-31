@@ -40,13 +40,15 @@
     -->
     <os-core:giga-space id="gigaSpace" space="space"/>
 
-    <!--<bean id="journeyFeeder" class="com.gigaspaces.poc.feeder.JourneyFeeder" depends-on="gigaSpace">-->
-        <!--<property name="defaultDelay" value="${defaultDelay}" />-->
-    <!--</bean>-->
+    <bean id="journeyFeeder" class="com.gigaspaces.poc.feeder.JourneyFeeder" depends-on="gigaSpace">
+        <property name="defaultDelay" value="${defaultDelay}" />
+    </bean>
 
-    <bean id="apis" class="com.gigaspaces.poc.feeder.APIs" depends-on="gigaSpace" />
+    <!-- Simulate APIs -->
+    <!--<bean id="apis" class="com.gigaspaces.poc.feeder.APIs" depends-on="gigaSpace" />-->
 
+    <!-- Simulate JourneyService executor proxy -->
     <!-- support @ExecutorProxy annotations -->
-    <os-remoting:annotation-support />
+    <!--<os-remoting:annotation-support />-->
 
 </beans>
