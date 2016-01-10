@@ -29,8 +29,44 @@
     <os-events:annotation-support />
 
     <!--
+        A JDBC pooled data source that connects to the HSQL server the mirror starts.
+    -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+        <property name="url" value="jdbc:hsqldb:hsql://localhost/testDB"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+    </bean>
+
+    <!--
+        Hibernate SessionFactory bean. Uses the pooled data source to connect to the database.
+    -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.gigaspaces.poc.common.Data</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+                <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="hibernateSpaceDataSource" class="org.openspaces.persistency.hibernate.DefaultHibernateSpaceDataSourceFactoryBean">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="initialLoadChunkSize" value="2000"/>
+    </bean>
+
+    <!--
         Bean for connecting to mongoDB instance
     -->
+<!--
     <bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
         <property name="db" value="testDB" />
         <property name="config">
@@ -41,9 +77,10 @@
         </property>
     </bean>
 
-    <bean id="spaceDataSource" class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
+    <bean id="mirrorSpaceDataSource" class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
         <property name="mongoClientConnector" ref="mongoClient" />
     </bean>
+-->
     <!--
         A bean representing a space (an IJSpace implementation).
 
@@ -54,7 +91,7 @@
         to perform the initial load operation from the database when the Space starts up.
     -->
     <os-core:embedded-space id="space" space-name="space" schema="persistent"
-                   mirrored="true" space-data-source="spaceDataSource">
+                   mirrored="true" space-data-source="hibernateSpaceDataSource"> <!--space-data-source="mirrorSpaceDataSource"-->
         <os-core:properties>
             <props>
                 <!-- Use ALL IN CACHE -->

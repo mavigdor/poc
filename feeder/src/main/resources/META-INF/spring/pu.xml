@@ -4,15 +4,14 @@
        xmlns:os-core="http://www.openspaces.org/schema/core"
        xmlns:os-events="http://www.openspaces.org/schema/events"
        xmlns:os-remoting="http://www.openspaces.org/schema/remoting"
-       xmlns:os-sla="http://www.openspaces.org/schema/sla"
+       xmlns:os-sla="http://www.openspaces.org/schema/sla" xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
        http://www.openspaces.org/schema/core http://www.openspaces.org/schema/10.2/core/openspaces-core.xsd
        http://www.openspaces.org/schema/events http://www.openspaces.org/schema/10.2/events/openspaces-events.xsd
        http://www.openspaces.org/schema/remoting http://www.openspaces.org/schema/10.2/remoting/openspaces-remoting.xsd
        http://www.openspaces.org/schema/sla http://www.openspaces.org/schema/10.2/sla/openspaces-sla.xsd">
 
-
-    <!--
+   <!--
         Spring property configurer which allows us to use system properties (such as user.name).
     -->
     <bean id="propertiesConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -34,18 +33,23 @@
         Note, we perform a lookup on the space since we are working against a remote space.
     -->
     <os-core:space-proxy id="space" space-name="space"/>
+    <!--<os-core:space id="space" url="jini://localhost/*/space?ignoreValidation=true,activeelectionState=ACTIVE"/>-->
 
     <!--
         OpenSpaces simplified space API built on top of IJSpace/JavaSpace.
     -->
     <os-core:giga-space id="gigaSpace" space="space"/>
 
-    <bean id="journeyFeeder" class="com.gigaspaces.poc.feeder.JourneyFeeder" depends-on="gigaSpace">
-        <property name="defaultDelay" value="${defaultDelay}" />
-    </bean>
+    <os-events:annotation-support />
+
+
+    <!--<bean id="journeyFeeder" class="com.gigaspaces.poc.feeder.JourneyFeeder" depends-on="gigaSpace">-->
+        <!--<property name="defaultDelay" value="${defaultDelay}" />-->
+    <!--</bean>-->
 
     <!-- Simulate APIs -->
     <!--<bean id="apis" class="com.gigaspaces.poc.feeder.APIs" depends-on="gigaSpace" />-->
+    <bean id="worker" class="com.gigaspaces.poc.feeder.worker.Worker"/>
 
     <!-- Simulate JourneyService executor proxy -->
     <!-- support @ExecutorProxy annotations -->
